@@ -6,10 +6,12 @@ import loginphoto from "../../Photos/women.jpg";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ErrorNotifications, SuccessNotifications } from "./Notification";
+import Loading from "./Loading";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Register = () => {
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [showError, setShowError] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const form = useForm({
@@ -34,33 +36,46 @@ const Register = () => {
     navigate("/");
   };
 
-  const handleButtonclick = async () => {
+  const handleButtonclick = async (value) => {
     try {
+      console.log(value.email);
+      setLoading(true);
+
       const response = await axios.post(
         "http://127.0.0.1:9000/api/v1/user/registerUser",
         {
-          email: form.values.email,
-          password: form.values.password,
-          name: form.values.name,
-          username: form.values.username,
+          email: value.email,
+          password: value.password,
+          name: value.name,
+          username: value.username,
+          profilePicture: "myImg",
         }
       );
+
       if (response.status === 200) {
-        setShowSuccess(true);
-        setShowError(false);
+        toast.success("Registration Completed");
+        // SuccessNotifications(
+        //   "Registration Successful",
+        //   "You are in the world of your own"
+        // );
       } else {
-        setShowSuccess(false);
-        setShowError(true);
+        toast.error("Invalid");
+        // ErrorNotifications("Registration Unsuccessful", "Something went wrong");
       }
+
+      setLoading(false);
 
       console.log(response.data);
     } catch (error) {
+      setLoading(false);
       console.error("Error:", error);
     }
   };
 
   return (
     <div className="w-full h-screen flex justify-center items-center">
+      <ToastContainer />
+      <Loading loading={loading} /> {/* Loading overlay */}
       <div className="w-3/5 h-4/4  flex flex-row justify-start gap-2 shadow-2xl ">
         <div className="mt-20 w-full">
           <img src={loginphoto} alt="Login image" />
@@ -73,22 +88,24 @@ const Register = () => {
             Already have an account? Login here
           </p>
 
-          <form onSubmit={form.onSubmit(handleButtonclick)}>
+          <form onSubmit={form.onSubmit((value) => handleButtonclick(value))}>
             <div className="w-full">
               <div className="flex flex-col gap-3 mt-5 mb-5">
-                <Input.Wrapper label="Username" error={form.errors.username}>
-                  <Input
-                    placeholder="Enter username"
-                    {...form.getInputProps("username")}
-                  />
-                </Input.Wrapper>
+                <div className="flex gap-1 w-ful justify-between">
+                  <Input.Wrapper label="Username" error={form.errors.username}>
+                    <Input
+                      placeholder="Enter username"
+                      {...form.getInputProps("username")}
+                    />
+                  </Input.Wrapper>
 
-                <Input.Wrapper label="Name" error={form.errors.name}>
-                  <Input
-                    placeholder="Enter your name"
-                    {...form.getInputProps("name")}
-                  />
-                </Input.Wrapper>
+                  <Input.Wrapper label="Name" error={form.errors.name}>
+                    <Input
+                      placeholder="Enter your name"
+                      {...form.getInputProps("name")}
+                    />
+                  </Input.Wrapper>
+                </div>
 
                 <Input.Wrapper label="Email" error={form.errors.email}>
                   <Input
@@ -141,10 +158,6 @@ const Register = () => {
           </form>
         </div>
       </div>
-      {showError && <ErrorNotifications message="An error occurred" />}
-      {showSuccess && (
-        <SuccessNotifications message="Registration successful" />
-      )}
     </div>
   );
 };

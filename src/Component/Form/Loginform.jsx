@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "@mantine/form";
 import { FcGoogle } from "react-icons/fc";
 import {
@@ -19,16 +19,18 @@ const Loginform = () => {
 
   const form = useForm({
     mode: "uncontrolled",
-    initialValues: { email: "" },
+    initialValues: { email: "", password: "" },
 
     validate: {
       email: (value) => (/^\S+@\S+$/.test(value) ? null : "Invalid email"),
+      password: (value) => (value ? null : "Name is required"),
     },
   });
 
   const handleSignUpClick = () => {
     navigate("/register");
   };
+
   return (
     <>
       <div className="w-full h-screen flex justify-center items-center">
@@ -108,7 +110,7 @@ const Loginform = () => {
             <img
               src={loginphoto}
               alt="Login image"
-              class="object-cover h-48 md:h-auto md:w-full"
+              className="object-cover h-48 md:h-auto md:w-full"
             />
           </div>
         </div>
