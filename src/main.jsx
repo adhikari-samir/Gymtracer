@@ -6,13 +6,13 @@ import "@mantine/notifications/styles.css";
 import { MantineProvider } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import "@mantine/core/styles.css";
+import "@mantine/notifications/styles.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <MantineProvider>
-      {/* <Notifications> */}
+      <Notifications position="top-right" zIndex={1000} />
       <App />
-      {/* </Notifications> */}
     </MantineProvider>
   </React.StrictMode>
 );

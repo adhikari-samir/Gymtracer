@@ -11,25 +11,68 @@ import {
 import loginphoto from "../../Photos/Gymtracer2.jpg";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { notifications } from "@mantine/notifications";
 
 const Loginform = () => {
   const [value, setValue] = useState("");
   const [checked, setChecked] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const form = useForm({
     mode: "uncontrolled",
     initialValues: { email: "", password: "" },
 
-    validate: {
-      email: (value) => (/^\S+@\S+$/.test(value) ? null : "Invalid email"),
-      password: (value) => (value ? null : "Name is required"),
+    validationRules: {
+      email: (value) => (value ? null : "Email or username is required"),
+      password: (value) => (value ? null : "Password is required"),
     },
   });
-
   const handleSignUpClick = () => {
     navigate("/register");
   };
+
+  const handleButtonclick = async (value) => {
+    console.log("form submitted");
+    console.log("form submitted with password:", value.password);
+
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:9000/api/v1/user/login",
+        {
+          usernameOrEmail: value.email,
+          password: value.password,
+        }
+      );
+      console.log(response);
+
+      if (response.status === 200) {
+        console.log("Login successful");
+        localStorage.setItem("token", response.data.token);
+        navigate("/dashboard");
+      } else {
+        console.error("Login failed");
+        setError("Invalid username or password");
+      }
+    } catch (error) {
+      if (error.response.status === 403) {
+        console.log(error);
+        console.log("Navigating");
+        const userId = error.response.data.data.user.id;
+        navigate(`/otp/${userId}`);
+      } else {
+        console.error("An error occurred during login:", error);
+        console.log(error);
+      }
+    }
+  };
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/dashboard");
+    }
+  }, []);
 
   return (
     <>
@@ -41,25 +84,25 @@ const Loginform = () => {
               Please enter log in details below
             </p>
 
-            <form onSubmit={form.onSubmit(console.log)}>
+            <form onSubmit={form.onSubmit((value) => handleButtonclick(value))}>
               <div className="w-full">
                 <div className="flex flex-col gap-3 mt-5 mb-5">
                   <TextInput
-                    label="Email"
+                    label="Email or username"
                     size="md"
-                    placeholder=" Enter email"
+                    placeholder=" Enter email or username"
                     key={form.key("email")}
                     {...form.getInputProps("email")}
                   />
                   <PasswordInput
                     label="Password"
                     size="md"
-                    value={value}
                     onChange={(event) => setValue(event.currentTarget.value)}
+                    {...form.getInputProps("password")}
                     placeholder="Enter password"
                   />
                 </div>
-
+                {error && <p className="text-red-500">{error}</p>}
                 <div class="flex flex-row justify-between mt-3 mb-3 ">
                   <Checkbox
                     checked={checked}
@@ -73,7 +116,6 @@ const Loginform = () => {
                     Forgot password?
                   </p>
                 </div>
-
                 <Button
                   type="submit"
                   variant="light"
