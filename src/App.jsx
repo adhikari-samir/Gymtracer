@@ -11,8 +11,13 @@ import {
 } from "react-router-dom";
 import "@mantine/core/styles.css";
 import Otpui from "./Component/Form/Otp_UI";
-import Dashboard from "./Component/Form/Dashboard/Dashboard";
 import PrivateRoute from "./Component/Form/Dashboard/Privateroute";
+import Home from "./Component/Form/Dashboard/Home";
+import Layout from "./Component/Form/Dashboard/Layout";
+import Dashboard from "./Component/Form/Dashboard/Sidebarmaterial/Dashboard";
+import Routine from "./Component/Form/Dashboard/Sidebarmaterial/Routine";
+import Add_details from "./Component/Form/Dashboard/Sidebarmaterial/Add_details";
+import Report from "./Component/Form/Dashboard/Sidebarmaterial/Report";
 function App() {
   return (
     <Router>
@@ -22,7 +27,51 @@ function App() {
         <Route path="/otp/:userId" element={<Otpui />} />
         <Route
           path="/dashboard"
-          element={<PrivateRoute Component={<Dashboard />} />}
+          element={
+            <PrivateRoute
+              Component={
+                <Layout>
+                  <Home />
+                </Layout>
+              }
+            />
+          }
+        />
+        <Route
+          path="/report"
+          element={
+            <PrivateRoute
+              Component={
+                <Layout>
+                  <Report />
+                </Layout>
+              }
+            />
+          }
+        />
+        <Route
+          path="/routine"
+          element={
+            <PrivateRoute
+              Component={
+                <Layout>
+                  <Routine />
+                </Layout>
+              }
+            />
+          }
+        />
+        <Route
+          path="/add_details"
+          element={
+            <PrivateRoute
+              Component={
+                <Layout>
+                  <Add_details />
+                </Layout>
+              }
+            />
+          }
         />
       </Routes>
     </Router>
