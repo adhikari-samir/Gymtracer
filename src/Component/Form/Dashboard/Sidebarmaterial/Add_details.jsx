@@ -4,7 +4,9 @@ import Dashboardhome from "../Dashboardhome";
 const Add_details = () => {
   return (
     <>
-      <Dashboardhome />
+      <div className=" w-full p-4">
+        <Dashboardhome />
+      </div>
     </>
   );
 };

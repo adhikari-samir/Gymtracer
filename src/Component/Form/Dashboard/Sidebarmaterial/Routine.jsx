@@ -1,11 +1,10 @@
 import React from "react";
 import React_table from "../Table/React_table";
-import BasicTable from "../Table/BasicTable";
+import BasicTable from "../Table/Routine_table";
 
 const Routine = () => {
   return (
     <>
-      <h1>Routine</h1>
       <BasicTable />
     </>
   );

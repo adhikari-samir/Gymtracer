@@ -18,62 +18,65 @@ import Dashboard from "./Component/Form/Dashboard/Sidebarmaterial/Dashboard";
 import Routine from "./Component/Form/Dashboard/Sidebarmaterial/Routine";
 import Add_details from "./Component/Form/Dashboard/Sidebarmaterial/Add_details";
 import Report from "./Component/Form/Dashboard/Sidebarmaterial/Report";
+import { UserProvider } from "../src/Component/Context/Usercontext";
 function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<Loginform />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/otp/:userId" element={<Otpui />} />
-        <Route
-          path="/dashboard"
-          element={
-            <PrivateRoute
-              Component={
-                <Layout>
-                  <Home />
-                </Layout>
-              }
-            />
-          }
-        />
-        <Route
-          path="/report"
-          element={
-            <PrivateRoute
-              Component={
-                <Layout>
-                  <Report />
-                </Layout>
-              }
-            />
-          }
-        />
-        <Route
-          path="/routine"
-          element={
-            <PrivateRoute
-              Component={
-                <Layout>
-                  <Routine />
-                </Layout>
-              }
-            />
-          }
-        />
-        <Route
-          path="/add_details"
-          element={
-            <PrivateRoute
-              Component={
-                <Layout>
-                  <Add_details />
-                </Layout>
-              }
-            />
-          }
-        />
-      </Routes>
+      <UserProvider>
+        <Routes>
+          <Route path="/" element={<Loginform />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/otp/:userId" element={<Otpui />} />
+          <Route
+            path="/dashboard"
+            element={
+              <PrivateRoute
+                Component={
+                  <Layout>
+                    <Home />
+                  </Layout>
+                }
+              />
+            }
+          />
+          <Route
+            path="/report"
+            element={
+              <PrivateRoute
+                Component={
+                  <Layout>
+                    <Report />
+                  </Layout>
+                }
+              />
+            }
+          />
+          <Route
+            path="/routine"
+            element={
+              <PrivateRoute
+                Component={
+                  <Layout>
+                    <Routine />
+                  </Layout>
+                }
+              />
+            }
+          />
+          <Route
+            path="/add_details"
+            element={
+              <PrivateRoute
+                Component={
+                  <Layout>
+                    <Add_details />
+                  </Layout>
+                }
+              />
+            }
+          />
+        </Routes>
+      </UserProvider>
     </Router>
   );
 }

@@ -10,7 +10,7 @@ import { BsFillBellFill } from "react-icons/bs";
 
 const Navbar = () => {
   return (
-    <div className="pt-2 pr-2 bg-red-50 ">
+    <div className="pt-2 pr-2 bg-red-50 pb-2">
       <nav className=" p-8 flex justify-between  shadow-md rounded-xl bg-white">
         <div className="flex flex-row gap-2 ">
           <div className="">
