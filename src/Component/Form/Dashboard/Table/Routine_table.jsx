@@ -1,28 +1,30 @@
 import React, { useMemo, useState, useEffect, useContext } from "react";
 import { Button, Table, Autocomplete } from "@mantine/core";
 import { useTable, usePagination } from "react-table";
+import { useDisclosure } from "@mantine/hooks";
+import { Modal } from "@mantine/core";
 import axios from "axios";
 import { COLUMNS } from "./Columns";
 import { UserContext } from "../../../Context/Usercontext";
 
 const BasicTable = () => {
-  // const { userData } = useContext(UserContext);
-  // const userId = userData ? userData.id : null;
+  const { userData } = useContext(UserContext);
+  // Ensure userData exists and has the id property
+  const userId = userData ? userData.id : null;
+  console.log("User id is:", userId);
 
   const columns = useMemo(() => COLUMNS, []);
   const [workoutNames, setWorkoutNames] = useState([]);
-  // const [dayId, setDayId] = useState([]);
-  // const [workoutId, SetWorkoutId] = useState([]);
+  const [dayId, setDayId] = useState(""); // State for dayId
+  const [workoutId, setWorkoutId] = useState(""); // State for workoutId
   const [days, setDays] = useState([]);
   const [error, setError] = useState(null);
-  const data = useMemo(() => [], []); // Placeholder for table data
+  const data = useMemo(() => [], []);
+  const [opened, { open, close }] = useDisclosure(false);
 
   const fetchWorkoutNames = async () => {
     try {
-      console.log("Fetching workout names...");
       const token = localStorage.getItem("token");
-      // console.log("Token:", token);
-
       if (!token) {
         throw Error("Token not found");
       }
@@ -34,13 +36,8 @@ const BasicTable = () => {
         }
       );
 
-      const workoutdata = response.data?.data?.Workouts; // Assuming 'Workouts' is the array of workout objects
-      console.log("Fetched workout data:", workoutdata);
-
-      const workoutNamesArray = workoutdata.map((workout) => workout.name); // Extracting names from workout objects
-      console.log("Workout names array:", workoutNamesArray);
-
-      setWorkoutNames(workoutNamesArray); // Set workoutNames as an array of workout names
+      const workoutdata = response.data?.data?.Workouts;
+      setWorkoutNames(workoutdata); // Store workout data directly
     } catch (error) {
       setError(error.message);
       console.error("Error fetching workout names:", error);
@@ -50,7 +47,6 @@ const BasicTable = () => {
   const fetchDays = async () => {
     try {
       const token = localStorage.getItem("token");
-      console.log("Token hai:", token);
       const response = await axios.get(
         "http://127.0.0.1:9000/api/v1/day/get-all-days",
         {
@@ -58,14 +54,9 @@ const BasicTable = () => {
         }
       );
       const daysdata = response.data.data.days;
-      console.log("Fetched days data:", daysdata);
-
-      const dayname = daysdata.map((item) => item.name);
-      console.log("data names array:", dayname);
-
-      setDays(dayname);
+      setDays(daysdata); // Store days directly to handle both id and name
     } catch (error) {
-      console.error("error fetchingg days:", error);
+      console.error("Error fetching days:", error);
     }
   };
 
@@ -74,32 +65,47 @@ const BasicTable = () => {
     fetchDays();
   }, []);
 
-  // const handleSubmit = async () => {
-  //   try {
-  //     const token = localStorage.getItem("token");
-  //     if (!token) {
-  //       throw new Error("Token is not found in local storage");
-  //     }
-  //     const response = await axios.post(
-  //       "127.0.0.1:9000/api/v1/routine/add-routine",
-  //       {
-  //         dayId: dayId,
-  //         workoutId: workoutId,
-  //         userId: userId,
-  //       },
-  //       {
-  //         headers: { Authorization: `Bearer ${token}` },
-  //       }
-  //     );
+  const handleSubmit = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Token is not found in local storage");
+      }
 
-  //     fetchDays();
-  //     fetchWorkoutNames();
-  //     setDayId("");
-  //     SetWorkoutId("");
-  //   } catch (error) {
-  //     setError(error.message);
-  //   }
-  // };
+      // Find the ID corresponding to the selected day name
+      const selectedDay = days.find((day) => day.name === dayId);
+      const selectedDayId = selectedDay ? selectedDay.id : "";
+
+      // Find the ID corresponding to the selected workout name
+      const selectedWorkout = workoutNames.find(
+        (workout) => workout.name === workoutId
+      );
+      const selectedWorkoutId = selectedWorkout ? selectedWorkout.id : "";
+
+      const response = await axios.post(
+        "http://127.0.0.1:9000/api/v1/routine/add-routine",
+        {
+          dayId: selectedDayId,
+          workoutId: selectedWorkoutId,
+          userId: userId,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.status === 200) {
+        console.log("Workout added successfully:", response.data);
+        fetchDays();
+        fetchWorkoutNames();
+        setDayId("");
+        setWorkoutId("");
+      }
+    } catch (error) {
+      setError(error.message);
+      console.error("Error adding workout:", error);
+    }
+  };
 
   const tableInstance = useTable(
     {
@@ -125,6 +131,41 @@ const BasicTable = () => {
     <>
       <div className="w-full p-3">
         <div className="w-80% rounded-lg">
+          <div className="flex flex-row justify-between mt-1">
+            <div className="p-4 text-xl font-semibold">
+              <p>Add Routine</p>
+            </div>
+            <div className="mr-5">
+              <Modal opened={opened} onClose={close} title="Add Workout">
+                <div className="w-full p-3">
+                  <Autocomplete
+                    label="Workout Name"
+                    placeholder="Pick workout"
+                    data={workoutNames.map((workout) => workout.name)}
+                    onChange={(value) => setWorkoutId(value)} // Set workoutId to the name directly
+                  />
+                  <Autocomplete
+                    label="Days Name"
+                    placeholder="Pick day"
+                    data={days.map((day) => day.name)}
+                    onChange={(value) => setDayId(value)} // Set dayId to the name directly
+                  />
+                  <Button color="blue" className="mt-2" onClick={handleSubmit}>
+                    Add Workout
+                  </Button>
+                </div>
+              </Modal>
+
+              <Button
+                color="red"
+                onClick={open}
+                variant="light"
+                className="mt-4"
+              >
+                Add Workout
+              </Button>
+            </div>
+          </div>
           <Table
             striped
             stickyHeader
@@ -137,7 +178,7 @@ const BasicTable = () => {
                   {headerGroup.headers.map((column) => (
                     <th
                       {...column.getHeaderProps()}
-                      className="px-4 py-2 text-white border bg-red-500 p-48 ml-10"
+                      className="px-4 py-2 text-black border bg-gray-50 p-48 ml-10"
                     >
                       {column.render("Header")}
                     </th>
@@ -181,20 +222,8 @@ const BasicTable = () => {
           </div>
         </div>
       </div>
-      <div className="w-full p-3">
-        <Autocomplete
-          label="Workout Name"
-          placeholder="Pick workout"
-          data={workoutNames}
-        />
-        <Autocomplete label="Days Name" placeholder="Pick day" data={days} />
-        <Button color="blue" className="mt-2">
-          Add Workout
-        </Button>
-      </div>
     </>
   );
 };
 
 export default BasicTable;
-// onClick={handleSubmit}

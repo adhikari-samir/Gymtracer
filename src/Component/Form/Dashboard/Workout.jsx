@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Accordion, Button, Autocomplete } from "@mantine/core";
+import { Accordion, Button, Autocomplete, ActionIcon } from "@mantine/core";
 import axios from "axios";
 import Loading from "../Loading";
 import { Notifications } from "@mantine/notifications";
 import { CgGym } from "react-icons/cg";
+import { ImBin } from "react-icons/im";
 
 const Workout = () => {
   const [workouts, setWorkouts] = useState([]);
@@ -67,6 +68,14 @@ const Workout = () => {
   const workoutdata = workouts?.map((item) => (
     <div key={item.id} className="flex justify-between items-center gap-y-8">
       {item.name} ({item.bodyPart.name})
+      <ActionIcon
+        variant="light"
+        aria-label="Delete"
+        style={{ cursor: "pointer" }}
+        onClick={() => handleDelete(item.id)}
+      >
+        <ImBin color="red" size={15} />
+      </ActionIcon>
     </div>
   ));
 
@@ -105,6 +114,38 @@ const Workout = () => {
 
       fetchWorkouts();
       setExerciseName("");
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (workoutId) => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("Token not found in local storage");
+        return;
+      }
+
+      const response = await axios.delete(
+        `http://127.0.0.1:9000/api/v1/workout/delete-workout/${workoutId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      console.log("workout_delete", response.data);
+
+      Notifications.show({
+        title: "Input Deleted",
+        message: "Workout has been successfully deleted.",
+        color: "red",
+      });
+
+      fetchWorkouts();
     } catch (error) {
       setError(error.message);
     } finally {

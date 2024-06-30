@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { useForm } from "@mantine/form";
 import { FcGoogle } from "react-icons/fc";
 import {
@@ -13,11 +13,14 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { notifications } from "@mantine/notifications";
+import { UserContext } from "../Context/Usercontext";
 
 const Loginform = () => {
   const [value, setValue] = useState("");
   const [checked, setChecked] = useState(false);
   const [error, setError] = useState("");
+
+  const { fetchUserData } = useContext(UserContext);
   const navigate = useNavigate();
 
   const form = useForm({
@@ -47,9 +50,10 @@ const Loginform = () => {
       );
       console.log(response);
 
-      if (response.status === 200) {
+      if (response?.status === 200) {
         console.log("Login successful");
         localStorage.setItem("token", response.data.token);
+        await fetchUserData();
         navigate("/dashboard");
       } else {
         console.error("Login failed");
