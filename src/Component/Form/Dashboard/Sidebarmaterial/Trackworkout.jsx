@@ -3,7 +3,7 @@ import React from "react";
 const Report = () => {
   return (
     <>
-      <h1>Report</h1>
+      <h1>Tracking workout</h1>
       <p>
         Lorem ipsum dolor sit amet consectetur adipisicing elit. Culpa veritatis
         sapiente quos molestias neque quo aliquid deleniti possimus recusandae a

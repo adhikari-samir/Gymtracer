@@ -18,7 +18,7 @@ const Sidebar = () => {
     },
     {
       id: 2,
-      label: "Report",
+      label: "Track Workout",
       icon: <TbReportAnalytics size={27} />,
       path: "/report",
     },

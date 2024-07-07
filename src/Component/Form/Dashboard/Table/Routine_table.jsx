@@ -7,6 +7,7 @@ import axios from "axios";
 import { UserContext } from "../../../Context/Usercontext";
 import Loading from "../../Loading";
 import { ActionIcon } from "@mantine/core";
+import { notifications } from "@mantine/notifications";
 import { IconAdjustments } from "@tabler/icons-react";
 import { ImBin } from "react-icons/im";
 
@@ -154,6 +155,10 @@ const BasicTable = () => {
       );
 
       if (response.status === 200) {
+        notifications.show({
+          title: "Workout added",
+          message: "You have successfully added Workout",
+        });
         console.log("Workout added successfully:", response.data);
 
         // Update 'data' state to reflect added routine
@@ -173,6 +178,11 @@ const BasicTable = () => {
 
         // Optionally, refetch routines to ensure data consistency
         fetchRoutines();
+      } else {
+        notifications.show({
+          title: "Error",
+          message: "Something went wrong. Please try again later.",
+        });
       }
     } catch (error) {
       setError(error.message);
@@ -188,16 +198,25 @@ const BasicTable = () => {
         {
           headers: { Authorization: `Bearer ${token}` },
           data: {
-            routineId: [routineIdToDelete],
+            routineIds: [routineIdToDelete],
           },
         }
       );
 
       console.log("responseeehaiii:", response);
       if (response.status === 200) {
+        notifications.show({
+          title: "Workout deleted",
+          message: "You have successfully deleted Workout",
+        });
         console.log("Routine deleted successfully:", response.data);
         // Optionally, refetch routines to ensure data consistency
         fetchRoutines();
+      } else {
+        notifications.show({
+          title: "Error",
+          message: "Something went wrong. Please try again later.",
+        });
       }
     } catch (error) {
       console.error("Error deleting routine:", error);

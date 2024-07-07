@@ -17,7 +17,7 @@ import Layout from "./Component/Form/Dashboard/Layout";
 import Dashboard from "./Component/Form/Dashboard/Sidebarmaterial/Dashboard";
 import Routine from "./Component/Form/Dashboard/Sidebarmaterial/Routine";
 import Add_details from "./Component/Form/Dashboard/Sidebarmaterial/Add_details";
-import Report from "./Component/Form/Dashboard/Sidebarmaterial/Report";
+import Report from "./Component/Form/Dashboard/Sidebarmaterial/Trackworkout";
 
 function App() {
   return (
