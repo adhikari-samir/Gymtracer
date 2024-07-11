@@ -1,137 +1,92 @@
-import React, { useState } from "react";
-import { Button, ActionIcon } from "@mantine/core";
-import { PillsInput, Pill } from "@mantine/core";
-import { CiEdit } from "react-icons/ci";
-
+import React, { useState, useEffect } from "react";
 import { useDisclosure } from "@mantine/hooks";
-import { Modal } from "@mantine/core";
+import { Button, Modal } from "@mantine/core";
+import Loading from "../../Loading";
+import { Checkbox } from "@mantine/core";
 
 const Report = () => {
-  const [openedCustomize, { open: openCustomize, close: closeCustomize }] =
-    useDisclosure(false);
-  const [openedSettings, { open: openSettings, close: closeSettings }] =
-    useDisclosure(false);
+  const [opened, { open, close }] = useDisclosure(false);
+  const [bodyParts, setBodyParts] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const customizeModal = (
-    <Modal opened={openedCustomize} onClose={closeCustomize} title="Customize">
-      <div className="p-4">
-        <h2 className="text-xl font-semibold mb-4">Customize Your Workouts</h2>
-        <p className="text-gray-700">
-          Here you can customize your workout settings, such as choosing
-          exercise types, setting goals, and tracking progress.
-        </p>
-        <ul className="mt-4">
-          <li className="mb-2">Choose your preferred exercises.</li>
-          <li className="mb-2">Set your workout goals.</li>
-          <li className="mb-2">Track your progress over time.</li>
-        </ul>
-      </div>
-    </Modal>
-  );
+  useEffect(() => {
+    fetchBodyParts();
+  }, []);
 
-  const settingsModal = (
-    <Modal opened={openedSettings} onClose={closeSettings} title="Settings">
-      <div className="p-4">
-        <h2 className="text-xl font-semibold mb-4">Settings</h2>
-        <p className="text-gray-700">
-          Adjust your application settings here, including theme preferences,
-          notification settings, and account management.
-        </p>
-        <ul className="mt-4">
-          <li className="mb-2">Change your theme color.</li>
-          <li className="mb-2">Manage your notifications.</li>
-          <li className="mb-2">Update your account details.</li>
-        </ul>
-      </div>
-    </Modal>
-  );
+  const fetchBodyParts = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        "http://127.0.0.1:9000/api/v1/workout/get-all-workouts/body-part",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-  const settingsIcon = (
-    <ActionIcon
-      variant="light"
-      aria-label="Settings"
-      size="xs"
-      color="red"
-      onClick={openSettings}
-    >
-      <CiEdit />
-    </ActionIcon>
-  );
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setBodyParts(data.bodyPartWithWorkouts); // Ensure you are setting the correct data structure
+      console.log("Fetched body parts:", data.bodyPartWithWorkouts);
+    } catch (error) {
+      console.error("Error fetching body parts:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
-      <div className="shadow-2xl rounded-xl m-5">
-        <div className="flex flex-row justify-between items-center">
-          <h1 className="text-2xl font-medium ml-9 mt-4">Workouts</h1>
-
-          {settingsModal}
-
-          <Button
-            onClick={openCustomize}
-            variant="light"
-            color="red"
-            className="mr-8 mt-6"
-          >
-            Customize
+      <div className="p-10">
+        <div className="flex flex-row justify-between items-center mb-6">
+          <h1 className="text-3xl font-semibold">Workout Report</h1>
+          <Button onClick={open} color="red" variant="light">
+            Add Exercise +
           </Button>
+          <Modal opened={opened} onClose={close} title="Authentication">
+            <p>
+              Lorem ipsum dolor, sit amet consectetur adipisicing elit. Non enim
+              quaerat nisi. Excepturi enim laudantium deserunt quas libero
+              reprehenderit vero quasi debitis unde! Magnam aspernatur rerum
+              aliquam, ex itaque error.
+            </p>
+          </Modal>
         </div>
-        <div className="ml-9 mt-4 w-11/12">
-          <PillsInput variant="unstyled" size="lg" label="Chest">
-            <Pill.Group>
-              <Pill>
-                React
-                <span className="ml-2">{settingsIcon}</span>{" "}
-              </Pill>
-              <Pill>
-                Vue
-                <span className="ml-2">{settingsIcon}</span>{" "}
-              </Pill>
-              <Pill>
-                Svelte
-                <span className="ml-2">{settingsIcon}</span>{" "}
-              </Pill>
-            </Pill.Group>
-          </PillsInput>
+        <div>
+          {bodyParts.length > 0 ? (
+            bodyParts.map((bodyPart, index) => (
+              <div key={index} className="bg-white rounded-lg p-4 mb-3">
+                <h2 className="text-lg font-semibold mb-2">{bodyPart.name}</h2>
+                <div className="flex gap-16">
+                  {bodyPart.workouts.map((workout, idx) => (
+                    <div
+                      key={idx}
+                      className="bg-gray-100 rounded-md p-3  border border-r-red-400 w-48"
+                    >
+                      <div className="flex justify-between">
+                        <p className="text-base">{workout.name}</p>
+                        <Checkbox
+                          defaultunChecked={false}
+                          variant="outline"
+                          color="red"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-lg">No workout data available.</p>
+          )}
         </div>
-        <div className="ml-9 mt-4 w-11/12">
-          <PillsInput variant="unstyled" size="lg" label="Leg">
-            <Pill.Group>
-              <Pill>
-                React
-                <span className="ml-2">{settingsIcon}</span>{" "}
-              </Pill>
-              <Pill>
-                Vue
-                <span className="ml-2">{settingsIcon}</span>{" "}
-              </Pill>
-              <Pill>
-                Svelte
-                <span className="ml-2">{settingsIcon}</span>{" "}
-              </Pill>
-            </Pill.Group>
-          </PillsInput>
-        </div>
-        <div className="ml-9 mt-4 w-11/12">
-          <PillsInput variant="unstyled" size="lg" label="Back">
-            <Pill.Group>
-              <Pill>
-                React
-                <span className="ml-2">{settingsIcon}</span>{" "}
-              </Pill>
-              <Pill>
-                Vue
-                <span className="ml-2">{settingsIcon}</span>{" "}
-              </Pill>
-              <Pill>
-                Svelte
-                <span className="ml-2">{settingsIcon}</span>{" "}
-              </Pill>
-            </Pill.Group>
-          </PillsInput>
-        </div>
-        {customizeModal}
-        <p className="mt-5">.</p>
       </div>
+      <Loading loading={loading} />
     </>
   );
 };

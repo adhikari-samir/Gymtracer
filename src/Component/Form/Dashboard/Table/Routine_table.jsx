@@ -104,7 +104,7 @@ const BasicTable = () => {
       setLoading(true);
       const token = localStorage.getItem("token");
       const response = await axios.get(
-        `http://127.0.0.1:9000/api/v1/routine/get-routine/${userId}`,
+        `http://127.0.0.1:9000/api/v1/routine/get-routine/user/${userId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
